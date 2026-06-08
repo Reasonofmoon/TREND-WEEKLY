@@ -61,3 +61,36 @@ test('GitHubPublisher skips already published week', () => {
   assert.equal(result.status, 'skipped');
   assert.equal(result.reason, 'already_published');
 });
+
+test('GitHubPublisher explains 404 repo access failures', () => {
+  const digest = new FakeSheet('WeeklyDigest', [
+    ['week_key', 'week_start', 'week_end', 'title', 'body_markdown', 'item_count', 'status', 'created_at'],
+    ['2026-06-08_2026-06-14', '2026-06-08', '2026-06-14', 'Weekly Digest', '# Body', 1, 'ready', '']
+  ]);
+  const issueLog = new FakeSheet('WeeklyIssueLog', [
+    ['week_key', 'issue_number', 'issue_url', 'title', 'published_at', 'status', 'message']
+  ]);
+  const config = new FakeSheet('WeeklyConfig', [
+    ['key', 'value', 'note'],
+    ['GITHUB_OWNER', 'Reasonofmoon', ''],
+    ['GITHUB_REPO', 'TREND-WEEKLY', '']
+  ]);
+  const ss = new FakeSpreadsheet({ WeeklyDigest: digest, WeeklyIssueLog: issueLog, WeeklyConfig: config, Logs: new FakeSheet('Logs', [['ts', 'message']]) });
+  const context = loadApp(['Main.js', 'GitHubPublisher.js'], {
+    props: { GITHUB_TOKEN: 'bad-token' },
+    SpreadsheetApp: { openById: () => ss },
+    UrlFetchApp: {
+      fetch() {
+        return {
+          getResponseCode: () => 404,
+          getContentText: () => '{"message":"Not Found"}'
+        };
+      }
+    }
+  });
+
+  assert.throws(
+    () => context.GitHubPublisher_.publishLatest(),
+    /token cannot access it|Issues: Read and write/
+  );
+});

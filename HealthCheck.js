@@ -38,10 +38,19 @@ var HealthCheck_ = (function () {
     const owner = getConfig_('GITHUB_OWNER', 'Reasonofmoon');
     const repo = getConfig_('GITHUB_REPO', 'TREND-WEEKLY');
     const token = getProp_('GITHUB_TOKEN') || getConfig_('GITHUB_TOKEN');
+    if (!owner || !repo || !token) {
+      return {
+        name: 'GitHub config',
+        ok: false,
+        detail: owner + '/' + repo + ', token ' + (token ? 'set' : 'MISSING')
+      };
+    }
+
+    const access = GitHubPublisher_.checkAccess();
     return {
       name: 'GitHub config',
-      ok: !!owner && !!repo && !!token,
-      detail: owner + '/' + repo + ', token ' + (token ? 'set' : 'MISSING')
+      ok: access.ok,
+      detail: access.detail
     };
   }
 

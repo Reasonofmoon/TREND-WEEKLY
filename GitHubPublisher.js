@@ -85,13 +85,61 @@ var GitHubPublisher_ = (function () {
 
     const code = res.getResponseCode();
     const text = res.getContentText();
-    if (code < 200 || code >= 300) throw new Error('GitHub issue API ' + code + ': ' + text);
+    if (code < 200 || code >= 300) throw githubApiError_('issue API', code, text, owner, repo);
     const bodyJson = JSON.parse(text);
     return { number: bodyJson.number, htmlUrl: bodyJson.html_url };
   }
 
+  function checkAccess() {
+    const owner = getConfig_('GITHUB_OWNER', 'Reasonofmoon');
+    const repo = getConfig_('GITHUB_REPO', 'TREND-WEEKLY');
+    const token = getProp_('GITHUB_TOKEN') || getConfig_('GITHUB_TOKEN');
+    if (!token) return { ok: false, detail: 'GITHUB_TOKEN is missing' };
+
+    const url = 'https://api.github.com/repos/' + encodeURIComponent(owner) + '/' + encodeURIComponent(repo);
+    const res = UrlFetchApp.fetch(url, {
+      method: 'get',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      muteHttpExceptions: true
+    });
+
+    const code = res.getResponseCode();
+    const text = res.getContentText();
+    if (code < 200 || code >= 300) {
+      return { ok: false, detail: githubApiError_('repo access check', code, text, owner, repo).message };
+    }
+
+    const body = JSON.parse(text);
+    const issuesEnabled = body.has_issues !== false;
+    const permissions = body.permissions || {};
+    const canWrite = permissions.push || permissions.admin || permissions.maintain || permissions.triage;
+    return {
+      ok: issuesEnabled && canWrite,
+      detail: owner + '/' + repo +
+        ', issues=' + (issuesEnabled ? 'enabled' : 'DISABLED') +
+        ', permissions=' + JSON.stringify(permissions)
+    };
+  }
+
+  function githubApiError_(area, code, text, owner, repo) {
+    let hint = '';
+    if (code === 404) {
+      hint = ' Hint: GitHub returns 404 when the repo is private or the token cannot access it. Check GITHUB_OWNER/GITHUB_REPO, enable Issues, and give GITHUB_TOKEN access to ' + owner + '/' + repo + ' with Issues: Read and write.';
+    } else if (code === 401 || code === 403) {
+      hint = ' Hint: Check whether GITHUB_TOKEN is valid and has Issues: Read and write permission for ' + owner + '/' + repo + '.';
+    } else if (code === 410) {
+      hint = ' Hint: GitHub Issues may be disabled for ' + owner + '/' + repo + '.';
+    }
+    return new Error('GitHub ' + area + ' ' + code + ': ' + text + hint);
+  }
+
   return {
     publishLatest: publishLatest,
+    checkAccess: checkAccess,
     createIssueForTest: createIssue_
   };
 })();

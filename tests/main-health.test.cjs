@@ -37,3 +37,36 @@ test('HealthCheck reports missing GitHub token and source config', () => {
   assert.match(result.message, /token MISSING/);
   assert.match(result.message, /Source config/);
 });
+
+test('HealthCheck reports GitHub repo access failures when token is set', () => {
+  const ss = new FakeSpreadsheet({
+    WeeklyConfig: new FakeSheet('WeeklyConfig', [
+      ['key', 'value', 'note'],
+      ['GITHUB_OWNER', 'Reasonofmoon', ''],
+      ['GITHUB_REPO', 'TREND-WEEKLY', ''],
+      ['TILNOTE_PROFILE_URL', 'https://tilnote.io/@reasonofmoon', '']
+    ]),
+    WeeklySources: new FakeSheet('WeeklySources', [['week_key']]),
+    WeeklyDigest: new FakeSheet('WeeklyDigest', [['week_key']]),
+    WeeklyIssueLog: new FakeSheet('WeeklyIssueLog', [['week_key']]),
+    Logs: new FakeSheet('Logs', [['ts', 'message']])
+  });
+  const context = loadApp(['Main.js', 'GitHubPublisher.js', 'HealthCheck.js'], {
+    props: { GITHUB_TOKEN: 'bad-token' },
+    SpreadsheetApp: { openById: () => ss },
+    UrlFetchApp: {
+      fetch() {
+        return {
+          getResponseCode: () => 404,
+          getContentText: () => '{"message":"Not Found"}'
+        };
+      }
+    }
+  });
+
+  const result = context.runHealthCheck();
+
+  assert.equal(result.ok, false);
+  assert.match(result.message, /repo access check 404/);
+  assert.match(result.message, /token cannot access it/);
+});
