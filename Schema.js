@@ -12,7 +12,7 @@ var Schema_ = (function () {
     ]);
     ensureSheet_(ss, SHEET_DIGEST, [
       'week_key', 'week_start', 'week_end', 'title', 'body_markdown',
-      'item_count', 'status', 'created_at'
+      'body_html', 'html_path', 'html_url', 'item_count', 'status', 'created_at'
     ]);
     ensureSheet_(ss, SHEET_ISSUE_LOG, [
       'week_key', 'issue_number', 'issue_url', 'title', 'published_at', 'status', 'message'
@@ -25,6 +25,7 @@ var Schema_ = (function () {
       ['SHEET_ID', DEFAULT_SHEET_ID, 'Google Sheet backing this weekly app'],
       ['GITHUB_OWNER', 'Reasonofmoon', 'GitHub issue owner'],
       ['GITHUB_REPO', 'TREND-WEEKLY', 'GitHub issue repository'],
+      ['GITHUB_PAGES_BASE_URL', 'https://reasonofmoon.github.io/TREND-WEEKLY', 'GitHub Pages base URL for designed weekly HTML pages'],
       ['BLOG_RSS_URL', '', 'Blog RSS feed URL'],
       ['TILNOTE_PROFILE_URL', 'https://tilnote.io/@reasonofmoon', 'Tilnote profile page for recent blog posts'],
       ['YOUTUBE_CHANNEL_URL', 'https://www.youtube.com/@reasonofmoon', 'YouTube channel URL; RSS is resolved automatically when YOUTUBE_RSS_URL is blank'],

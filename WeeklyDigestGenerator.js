@@ -10,6 +10,9 @@ var WeeklyDigestGenerator_ = (function () {
     const items = selectTopItems_(readWeekItems_(sourceSheet, week), 10);
     const title = 'Weekly Digest — ' + week.start + ' ~ ' + week.end;
     const body = buildMarkdown_(title, week, items);
+    const html = HtmlPageGenerator_.buildPage(title, week, items);
+    const htmlPath = 'docs/weekly/' + week.start + '.html';
+    const htmlUrl = githubPagesUrl_(week.start + '.html');
 
     upsertDigest_(digestSheet, {
       weekKey: week.key,
@@ -17,6 +20,9 @@ var WeeklyDigestGenerator_ = (function () {
       weekEnd: week.end,
       title: title,
       body: body,
+      html: html,
+      htmlPath: htmlPath,
+      htmlUrl: htmlUrl,
       itemCount: items.length,
       status: items.length ? 'ready' : 'empty'
     });
@@ -155,10 +161,7 @@ var WeeklyDigestGenerator_ = (function () {
   function upsertDigest_(sheet, digest) {
     const rows = sheet.getDataRange().getValues();
     const idx = headerIndex_(rows[0]);
-    const row = [
-      digest.weekKey, digest.weekStart, digest.weekEnd, digest.title, digest.body,
-      digest.itemCount, digest.status, new Date()
-    ];
+    const row = rowForHeader_(rows[0], digest);
     for (let i = 1; i < rows.length; i++) {
       if (rows[i][idx.week_key] === digest.weekKey) {
         sheet.getRange(i + 1, 1, 1, row.length).setValues([row]);
@@ -166,6 +169,31 @@ var WeeklyDigestGenerator_ = (function () {
       }
     }
     sheet.appendRow(row);
+  }
+
+  function rowForHeader_(header, digest) {
+    const row = new Array(header.length).fill('');
+    const idx = headerIndex_(header);
+    row[idx.week_key] = digest.weekKey;
+    row[idx.week_start] = digest.weekStart;
+    row[idx.week_end] = digest.weekEnd;
+    row[idx.title] = digest.title;
+    row[idx.body_markdown] = digest.body;
+    if (idx.body_html != null) row[idx.body_html] = digest.html;
+    if (idx.html_path != null) row[idx.html_path] = digest.htmlPath;
+    if (idx.html_url != null) row[idx.html_url] = digest.htmlUrl;
+    row[idx.item_count] = digest.itemCount;
+    row[idx.status] = digest.status;
+    row[idx.created_at] = new Date();
+    return row;
+  }
+
+  function githubPagesUrl_(fileName) {
+    const configured = getConfig_('GITHUB_PAGES_BASE_URL');
+    if (configured) return configured.replace(/\/+$/, '') + '/weekly/' + encodeURIComponent(fileName);
+    const owner = String(getConfig_('GITHUB_OWNER', 'Reasonofmoon')).toLowerCase();
+    const repo = getConfig_('GITHUB_REPO', 'TREND-WEEKLY');
+    return 'https://' + owner + '.github.io/' + repo + '/weekly/' + encodeURIComponent(fileName);
   }
 
   function escapeMd_(value) {

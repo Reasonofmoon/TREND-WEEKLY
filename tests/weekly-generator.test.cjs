@@ -11,10 +11,10 @@ test('WeeklyDigestGenerator selects top 10 and groups issue markdown', () => {
     ['', '2026-06-08_2026-06-14', 'blog', 'Duplicate Blog', 'https://example.com/blog?utm=x', 'Duplicate', '2026-06-08', '', '', 90, 'https://example.com/blog', 'candidate']
   ]);
   const digest = new FakeSheet('WeeklyDigest', [
-    ['week_key', 'week_start', 'week_end', 'title', 'body_markdown', 'item_count', 'status', 'created_at']
+    ['week_key', 'week_start', 'week_end', 'title', 'body_markdown', 'body_html', 'html_path', 'html_url', 'item_count', 'status', 'created_at']
   ]);
   const ss = new FakeSpreadsheet({ WeeklySources: sources, WeeklyDigest: digest, Logs: new FakeSheet('Logs', [['ts', 'message']]) });
-  const context = loadApp(['Main.js', 'WeeklyDigestGenerator.js'], {
+  const context = loadApp(['Main.js', 'HtmlPageGenerator.js', 'WeeklyDigestGenerator.js'], {
     SpreadsheetApp: { openById: () => ss }
   });
 
@@ -22,8 +22,11 @@ test('WeeklyDigestGenerator selects top 10 and groups issue markdown', () => {
 
   assert.equal(result.weekKey, '2026-06-08_2026-06-14');
   assert.equal(result.itemCount, 3);
-  assert.equal(digest.data[1][6], 'ready');
+  assert.equal(digest.data[1][9], 'ready');
   assert.match(digest.data[1][4], /## This Week TOP 10/);
+  assert.match(digest.data[1][5], /Moonlit weekly digest/);
+  assert.equal(digest.data[1][6], 'docs/weekly/2026-06-08.html');
+  assert.equal(digest.data[1][7], 'https://reasonofmoon.github.io/TREND-WEEKLY/weekly/2026-06-08.html');
   assert.match(digest.data[1][4], /\[Blog\]/);
   assert.ok(digest.data[1][4].indexOf('Blog high') < digest.data[1][4].indexOf('Video high'));
 });

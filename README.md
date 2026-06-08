@@ -22,7 +22,7 @@ This is a separate Apps Script project from TREND-NEWS. It publishes one weekly 
 SHEET_ID=1h_HbL9-xUavM0Yz_RHTV_FD1CcnrSZuMT-OsSAMick8
 GITHUB_OWNER=Reasonofmoon
 GITHUB_REPO=TREND-WEEKLY
-GITHUB_TOKEN=<classic or fine-grained token with Issues write permission>
+GITHUB_TOKEN=<classic or fine-grained token with Issues and Contents write permission>
 ```
 
 Optional source properties can also be set in the `WeeklyConfig` sheet:
@@ -30,6 +30,7 @@ Optional source properties can also be set in the `WeeklyConfig` sheet:
 ```text
 BLOG_RSS_URL=
 TILNOTE_PROFILE_URL=https://tilnote.io/@reasonofmoon
+GITHUB_PAGES_BASE_URL=https://reasonofmoon.github.io/TREND-WEEKLY
 YOUTUBE_CHANNEL_URL=https://www.youtube.com/@reasonofmoon
 YOUTUBE_RSS_URL=
 LINKEDIN_SOURCE_URLS=https://www.linkedin.com/in/reasonofmoon/
@@ -41,6 +42,34 @@ INTERNAL_BLOCKED_TERMS=
 
 Use comma-separated URLs for `LINKEDIN_SOURCE_URLS`, `TPT_SOURCE_URLS`, and `IMWEB_SOURCE_URLS`.
 Run `configureReasonofmoonSources()` to write the known Reasonofmoon source URLs into `WeeklyConfig`.
+
+## GitHub Token Permissions
+
+For fine-grained tokens, select `Reasonofmoon/TREND-WEEKLY` and grant:
+
+```text
+Metadata: Read-only
+Issues: Read and write
+Contents: Read and write
+```
+
+`Contents: Read and write` is required because the app commits the designed HTML edition to `docs/weekly/{week_start}.html`.
+
+## GitHub Pages
+
+Enable GitHub Pages for this repository:
+
+```text
+Source: Deploy from a branch
+Branch: main
+Folder: /docs
+```
+
+The designed weekly page URL will look like:
+
+```text
+https://reasonofmoon.github.io/TREND-WEEKLY/weekly/2026-06-08.html
+```
 
 ## Main Functions
 

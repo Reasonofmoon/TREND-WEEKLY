@@ -99,6 +99,16 @@ function loadApp(files, extra) {
       formatDate(date) {
         const d = new Date(date);
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      },
+      newBlob(value) {
+        return {
+          getBytes() {
+            return Buffer.from(String(value));
+          }
+        };
+      },
+      base64Encode(bytes) {
+        return Buffer.from(bytes).toString('base64');
       }
     },
     ScriptApp: {
