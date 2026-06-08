@@ -96,3 +96,37 @@ test('SourceCollector resolves YouTube channel URL into RSS feed', () => {
   assert.equal(sources.data[1][2], 'youtube');
   assert.ok(calls.includes('https://www.youtube.com/feeds/videos.xml?channel_id=UC_TEST_REASON'));
 });
+
+test('SourceCollector parses recent Tilnote posts from profile HTML', () => {
+  const context = loadApp(['Main.js', 'SourceCollector.js'], {
+    SpreadsheetApp: { openById: () => new FakeSpreadsheet({ WeeklyConfig: new FakeSheet('WeeklyConfig', [['key', 'value', 'note']]) }) }
+  });
+
+  const html = '<script id="__NEXT_DATA__" type="application/json">' + JSON.stringify({
+    props: {
+      pageProps: {
+        ssrData: {
+          pages: [
+            {
+              _id: 'abc123',
+              title: 'Tilnote weekly post',
+              content: '<p>Useful AI education note.</p>',
+              createdAt: '2026-06-08',
+              tags: ['AI', '교육'],
+              userId: { name: '달의이성' }
+            }
+          ]
+        }
+      }
+    }
+  }) + '</script>';
+
+  const posts = context.SourceCollector_.parseTilnoteProfileForTest(html);
+
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].sourceType, 'blog');
+  assert.equal(posts[0].title, 'Tilnote weekly post');
+  assert.equal(posts[0].url, 'https://tilnote.io/pages/abc123');
+  assert.match(posts[0].summary, /Useful AI education note/);
+  assert.equal(posts[0].publishedAt, '2026-06-08');
+});

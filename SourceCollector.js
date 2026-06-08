@@ -9,6 +9,7 @@ var SourceCollector_ = (function () {
     const seen = buildSeen_(sh);
     const candidates = []
       .concat(fetchRssSource_('blog', getConfig_('BLOG_RSS_URL')))
+      .concat(fetchTilnote_())
       .concat(fetchYouTube_())
       .concat(fetchStaticLinks_('linkedin', getConfig_('LINKEDIN_SOURCE_URLS')))
       .concat(fetchStaticLinks_('tpt', getConfig_('TPT_SOURCE_URLS')))
@@ -76,6 +77,49 @@ var SourceCollector_ = (function () {
       }];
     }
     return fetchRssSource_('youtube', resolved);
+  }
+
+  function fetchTilnote_() {
+    const profileUrl = getConfig_('TILNOTE_PROFILE_URL');
+    if (!profileUrl) return [];
+    try {
+      const res = UrlFetchApp.fetch(profileUrl, { muteHttpExceptions: true, followRedirects: true });
+      if (res.getResponseCode() < 200 || res.getResponseCode() >= 400) {
+        log_('Tilnote fetch failed ' + res.getResponseCode() + ': ' + profileUrl);
+        return [];
+      }
+      return parseTilnoteProfile_(res.getContentText());
+    } catch (e) {
+      log_('Tilnote fetch error: ' + e);
+      return [];
+    }
+  }
+
+  function parseTilnoteProfile_(html) {
+    const script = String(html || '').match(/<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
+    if (!script) return [];
+    let data;
+    try {
+      data = JSON.parse(decodeHtml_(script[1]));
+    } catch (e) {
+      return [];
+    }
+    const pages = (((data.props || {}).pageProps || {}).ssrData || {}).pages || [];
+    const out = [];
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i] || {};
+      if (!page._id || !page.title) continue;
+      out.push({
+        sourceType: 'blog',
+        title: String(page.title || ''),
+        url: 'https://tilnote.io/pages/' + page._id,
+        summary: stripHtml_(String(page.content || '')).slice(0, 700),
+        publishedAt: page.createdAt || today_(),
+        author: page.userId && page.userId.name ? page.userId.name : '',
+        tags: Array.isArray(page.tags) ? page.tags.join(',') : ''
+      });
+    }
+    return out;
   }
 
   function resolveYouTubeRssUrl_(channelUrl) {
@@ -271,6 +315,7 @@ var SourceCollector_ = (function () {
   return {
     collect: collect,
     parseRssItemsForTest: parseRssItems_,
+    parseTilnoteProfileForTest: parseTilnoteProfile_,
     normalizeItemForTest: normalizeItem_
   };
 })();

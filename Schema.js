@@ -26,6 +26,7 @@ var Schema_ = (function () {
       ['GITHUB_OWNER', 'Reasonofmoon', 'GitHub issue owner'],
       ['GITHUB_REPO', 'TREND-WEEKLY', 'GitHub issue repository'],
       ['BLOG_RSS_URL', '', 'Blog RSS feed URL'],
+      ['TILNOTE_PROFILE_URL', 'https://tilnote.io/@reasonofmoon', 'Tilnote profile page for recent blog posts'],
       ['YOUTUBE_CHANNEL_URL', 'https://www.youtube.com/@reasonofmoon', 'YouTube channel URL; RSS is resolved automatically when YOUTUBE_RSS_URL is blank'],
       ['YOUTUBE_RSS_URL', '', 'YouTube RSS feed URL; optional override'],
       ['LINKEDIN_SOURCE_URLS', 'https://www.linkedin.com/in/reasonofmoon/', 'Comma-separated LinkedIn profile/post URLs'],

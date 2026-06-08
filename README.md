@@ -29,12 +29,13 @@ Optional source properties can also be set in the `WeeklyConfig` sheet:
 
 ```text
 BLOG_RSS_URL=
+TILNOTE_PROFILE_URL=https://tilnote.io/@reasonofmoon
 YOUTUBE_CHANNEL_URL=https://www.youtube.com/@reasonofmoon
 YOUTUBE_RSS_URL=
 LINKEDIN_SOURCE_URLS=https://www.linkedin.com/in/reasonofmoon/
 TPT_SOURCE_URLS=https://www.teacherspayteachers.com/store/moonlight-english-6940
 IMWEB_SOURCE_URLS=https://e-teachers.imweb.me/21
-TREND_NEWS_SHEET_ID=
+TREND_NEWS_SHEET_ID=1xHIJdzOfZ0QPP1hplvcXT-dboH0hCeJYq2vNkGpvbdw
 INTERNAL_BLOCKED_TERMS=
 ```
 

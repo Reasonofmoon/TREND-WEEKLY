@@ -18,16 +18,20 @@ function initialSetup() {
 
 function configureReasonofmoonSources() {
   Schema_.ensureSheets();
+  setConfig_('TILNOTE_PROFILE_URL', 'https://tilnote.io/@reasonofmoon', 'Reasonofmoon Tilnote blog profile');
   setConfig_('YOUTUBE_CHANNEL_URL', 'https://www.youtube.com/@reasonofmoon', 'Reasonofmoon YouTube channel; RSS is resolved automatically');
   setConfig_('LINKEDIN_SOURCE_URLS', 'https://www.linkedin.com/in/reasonofmoon/', 'Reasonofmoon LinkedIn profile');
   setConfig_('TPT_SOURCE_URLS', 'https://www.teacherspayteachers.com/store/moonlight-english-6940', 'Moonlight English TPT store');
   setConfig_('IMWEB_SOURCE_URLS', 'https://e-teachers.imweb.me/21', 'Imweb original-reader product page');
+  setConfig_('TREND_NEWS_SHEET_ID', '1xHIJdzOfZ0QPP1hplvcXT-dboH0hCeJYq2vNkGpvbdw', 'TREND-NEWS DailyIssues source sheet');
   log_('Reasonofmoon source URLs configured.');
   return {
+    tilnote: getConfig_('TILNOTE_PROFILE_URL'),
     youtube: getConfig_('YOUTUBE_CHANNEL_URL'),
     linkedin: getConfig_('LINKEDIN_SOURCE_URLS'),
     tpt: getConfig_('TPT_SOURCE_URLS'),
-    imweb: getConfig_('IMWEB_SOURCE_URLS')
+    imweb: getConfig_('IMWEB_SOURCE_URLS'),
+    trendNewsSheetId: getConfig_('TREND_NEWS_SHEET_ID')
   };
 }
 
