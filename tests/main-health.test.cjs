@@ -55,10 +55,16 @@ test('HealthCheck reports GitHub repo access failures when token is set', () => 
     props: { GITHUB_TOKEN: 'bad-token' },
     SpreadsheetApp: { openById: () => ss },
     UrlFetchApp: {
-      fetch() {
+      fetch(url) {
+        if (url.includes('/contents/')) {
+          return {
+            getResponseCode: () => 403,
+            getContentText: () => '{"message":"Resource not accessible by personal access token"}'
+          };
+        }
         return {
-          getResponseCode: () => 404,
-          getContentText: () => '{"message":"Not Found"}'
+          getResponseCode: () => 200,
+          getContentText: () => JSON.stringify({ has_issues: true, permissions: { push: true, pull: true } })
         };
       }
     }
@@ -67,6 +73,6 @@ test('HealthCheck reports GitHub repo access failures when token is set', () => 
   const result = context.runHealthCheck();
 
   assert.equal(result.ok, false);
-  assert.match(result.message, /repo access check 404/);
-  assert.match(result.message, /token cannot access it/);
+  assert.match(result.message, /contents permission check 403/);
+  assert.match(result.message, /Contents: Read and write/);
 });

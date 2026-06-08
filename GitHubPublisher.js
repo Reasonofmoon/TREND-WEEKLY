@@ -201,11 +201,31 @@ var GitHubPublisher_ = (function () {
     const issuesEnabled = body.has_issues !== false;
     const permissions = body.permissions || {};
     const canWrite = permissions.push || permissions.admin || permissions.maintain || permissions.triage;
+    const contentsAccess = checkContentsAccess_(owner, repo, token);
     return {
-      ok: issuesEnabled && canWrite,
+      ok: issuesEnabled && canWrite && contentsAccess.ok,
       detail: owner + '/' + repo +
         ', issues=' + (issuesEnabled ? 'enabled' : 'DISABLED') +
-        ', permissions=' + JSON.stringify(permissions)
+        ', permissions=' + JSON.stringify(permissions) +
+        ', contents=' + contentsAccess.detail
+    };
+  }
+
+  function checkContentsAccess_(owner, repo, token) {
+    const url = 'https://api.github.com/repos/' + encodeURIComponent(owner) + '/' +
+      encodeURIComponent(repo) + '/contents/README.md?ref=main';
+    const res = UrlFetchApp.fetch(url, {
+      method: 'get',
+      headers: githubHeaders_(token),
+      muteHttpExceptions: true
+    });
+    const code = res.getResponseCode();
+    const text = res.getContentText();
+    if (code >= 200 && code < 300) return { ok: true, detail: 'readable' };
+    if (code === 404) return { ok: true, detail: 'readable (README.md not found)' };
+    return {
+      ok: false,
+      detail: githubApiError_('contents permission check', code, text, owner, repo).message
     };
   }
 
