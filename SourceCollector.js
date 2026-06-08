@@ -9,7 +9,8 @@ var SourceCollector_ = (function () {
     const seen = buildSeen_(sh);
     const candidates = []
       .concat(fetchRssSource_('blog', getConfig_('BLOG_RSS_URL')))
-      .concat(fetchRssSource_('youtube', getConfig_('YOUTUBE_RSS_URL')))
+      .concat(fetchYouTube_())
+      .concat(fetchStaticLinks_('linkedin', getConfig_('LINKEDIN_SOURCE_URLS')))
       .concat(fetchStaticLinks_('tpt', getConfig_('TPT_SOURCE_URLS')))
       .concat(fetchStaticLinks_('imweb', getConfig_('IMWEB_SOURCE_URLS')))
       .concat(fetchTrendNewsHighlights_());
@@ -55,6 +56,40 @@ var SourceCollector_ = (function () {
     } catch (e) {
       log_('RSS fetch error ' + sourceType + ': ' + e);
       return [];
+    }
+  }
+
+  function fetchYouTube_() {
+    const rssUrl = getConfig_('YOUTUBE_RSS_URL');
+    if (rssUrl) return fetchRssSource_('youtube', rssUrl);
+
+    const channelUrl = getConfig_('YOUTUBE_CHANNEL_URL');
+    if (!channelUrl) return [];
+    const resolved = resolveYouTubeRssUrl_(channelUrl);
+    if (!resolved) {
+      return [{
+        sourceType: 'youtube',
+        title: 'Reasonofmoon YouTube channel',
+        url: channelUrl,
+        summary: 'YouTube channel source is configured, but the RSS channel ID could not be resolved automatically.',
+        publishedAt: today_()
+      }];
+    }
+    return fetchRssSource_('youtube', resolved);
+  }
+
+  function resolveYouTubeRssUrl_(channelUrl) {
+    try {
+      const res = UrlFetchApp.fetch(channelUrl, { muteHttpExceptions: true, followRedirects: true });
+      if (res.getResponseCode() < 200 || res.getResponseCode() >= 400) return '';
+      const html = res.getContentText();
+      const idMatch = html.match(/"channelId":"(UC[^"]+)"/) ||
+        html.match(/<meta[^>]+itemprop=["']channelId["'][^>]+content=["'](UC[^"']+)["']/i) ||
+        html.match(/https:\/\/www\.youtube\.com\/channel\/(UC[0-9A-Za-z_-]+)/);
+      if (!idMatch) return '';
+      return 'https://www.youtube.com/feeds/videos.xml?channel_id=' + idMatch[1];
+    } catch (e) {
+      return '';
     }
   }
 
@@ -178,7 +213,7 @@ var SourceCollector_ = (function () {
   }
 
   function scoreForType_(sourceType) {
-    const map = { blog: 90, youtube: 85, tpt: 80, imweb: 78, 'daily-news': 65 };
+    const map = { blog: 90, youtube: 85, linkedin: 82, tpt: 80, imweb: 78, 'daily-news': 65 };
     return map[sourceType] || 50;
   }
 

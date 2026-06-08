@@ -21,4 +21,23 @@ test('Schema creates weekly app sheets and seed config', () => {
   const config = ss.getSheetByName('WeeklyConfig').data;
   assert.ok(config.some((row) => row[0] === 'GITHUB_OWNER' && row[1] === 'Reasonofmoon'));
   assert.ok(config.some((row) => row[0] === 'GITHUB_REPO' && row[1] === 'TREND-WEEKLY'));
+  assert.ok(config.some((row) => row[0] === 'YOUTUBE_CHANNEL_URL' && row[1] === 'https://www.youtube.com/@reasonofmoon'));
+  assert.ok(config.some((row) => row[0] === 'LINKEDIN_SOURCE_URLS' && row[1] === 'https://www.linkedin.com/in/reasonofmoon/'));
+  assert.ok(config.some((row) => row[0] === 'TPT_SOURCE_URLS' && row[1] === 'https://www.teacherspayteachers.com/store/moonlight-english-6940'));
+  assert.ok(config.some((row) => row[0] === 'IMWEB_SOURCE_URLS' && row[1] === 'https://e-teachers.imweb.me/21'));
+});
+
+test('configureReasonofmoonSources writes known source URLs to config', () => {
+  const ss = new FakeSpreadsheet();
+  const context = loadApp(['Main.js', 'Schema.js'], {
+    SpreadsheetApp: { openById: () => ss }
+  });
+
+  context.initialSetup();
+  const result = context.configureReasonofmoonSources();
+
+  assert.equal(result.youtube, 'https://www.youtube.com/@reasonofmoon');
+  assert.equal(result.linkedin, 'https://www.linkedin.com/in/reasonofmoon/');
+  assert.equal(result.tpt, 'https://www.teacherspayteachers.com/store/moonlight-english-6940');
+  assert.equal(result.imweb, 'https://e-teachers.imweb.me/21');
 });

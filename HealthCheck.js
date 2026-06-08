@@ -46,7 +46,7 @@ var HealthCheck_ = (function () {
   }
 
   function checkSourceConfig_() {
-    const keys = ['BLOG_RSS_URL', 'YOUTUBE_RSS_URL', 'TPT_SOURCE_URLS', 'IMWEB_SOURCE_URLS', 'TREND_NEWS_SHEET_ID'];
+    const keys = ['BLOG_RSS_URL', 'YOUTUBE_RSS_URL', 'YOUTUBE_CHANNEL_URL', 'LINKEDIN_SOURCE_URLS', 'TPT_SOURCE_URLS', 'IMWEB_SOURCE_URLS', 'TREND_NEWS_SHEET_ID'];
     let count = 0;
     for (let i = 0; i < keys.length; i++) {
       if (getConfig_(keys[i])) count++;

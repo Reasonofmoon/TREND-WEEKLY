@@ -16,6 +16,21 @@ function initialSetup() {
   log_('initialSetup complete. Next: set GITHUB_TOKEN, source URLs, then installWeeklyTriggers().');
 }
 
+function configureReasonofmoonSources() {
+  Schema_.ensureSheets();
+  setConfig_('YOUTUBE_CHANNEL_URL', 'https://www.youtube.com/@reasonofmoon', 'Reasonofmoon YouTube channel; RSS is resolved automatically');
+  setConfig_('LINKEDIN_SOURCE_URLS', 'https://www.linkedin.com/in/reasonofmoon/', 'Reasonofmoon LinkedIn profile');
+  setConfig_('TPT_SOURCE_URLS', 'https://www.teacherspayteachers.com/store/moonlight-english-6940', 'Moonlight English TPT store');
+  setConfig_('IMWEB_SOURCE_URLS', 'https://e-teachers.imweb.me/21', 'Imweb original-reader product page');
+  log_('Reasonofmoon source URLs configured.');
+  return {
+    youtube: getConfig_('YOUTUBE_CHANNEL_URL'),
+    linkedin: getConfig_('LINKEDIN_SOURCE_URLS'),
+    tpt: getConfig_('TPT_SOURCE_URLS'),
+    imweb: getConfig_('IMWEB_SOURCE_URLS')
+  };
+}
+
 function installWeeklyTriggers() {
   const triggers = ScriptApp.getProjectTriggers();
   for (let i = 0; i < triggers.length; i++) ScriptApp.deleteTrigger(triggers[i]);

@@ -92,6 +92,7 @@ var WeeklyDigestGenerator_ = (function () {
 
     appendGroup_(lines, '## My Published Content', grouped.blog, 'Blog');
     appendGroup_(lines, '## YouTube', grouped.youtube, 'YouTube');
+    appendGroup_(lines, '## LinkedIn', grouped.linkedin, 'LinkedIn');
     appendGroup_(lines, '## Product Updates', (grouped.tpt || []).concat(grouped.imweb || []), 'Product');
     appendGroup_(lines, '## Daily TREND-NEWS Highlights', grouped['daily-news'], 'Daily News');
 
@@ -143,6 +144,7 @@ var WeeklyDigestGenerator_ = (function () {
     const map = {
       blog: 'Blog',
       youtube: 'YouTube',
+      linkedin: 'LinkedIn',
       tpt: 'TPT',
       imweb: 'Imweb',
       'daily-news': 'Daily News'

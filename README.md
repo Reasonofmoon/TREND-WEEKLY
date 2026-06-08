@@ -29,14 +29,17 @@ Optional source properties can also be set in the `WeeklyConfig` sheet:
 
 ```text
 BLOG_RSS_URL=
+YOUTUBE_CHANNEL_URL=https://www.youtube.com/@reasonofmoon
 YOUTUBE_RSS_URL=
-TPT_SOURCE_URLS=
-IMWEB_SOURCE_URLS=
+LINKEDIN_SOURCE_URLS=https://www.linkedin.com/in/reasonofmoon/
+TPT_SOURCE_URLS=https://www.teacherspayteachers.com/store/moonlight-english-6940
+IMWEB_SOURCE_URLS=https://e-teachers.imweb.me/21
 TREND_NEWS_SHEET_ID=
 INTERNAL_BLOCKED_TERMS=
 ```
 
-Use comma-separated URLs for `TPT_SOURCE_URLS` and `IMWEB_SOURCE_URLS`.
+Use comma-separated URLs for `LINKEDIN_SOURCE_URLS`, `TPT_SOURCE_URLS`, and `IMWEB_SOURCE_URLS`.
+Run `configureReasonofmoonSources()` to write the known Reasonofmoon source URLs into `WeeklyConfig`.
 
 ## Main Functions
 
